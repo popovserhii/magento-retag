@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<Popov_Retag>
+			<active>true</active>
+			<codePool>community</codePool>
+		</Popov_Retag>
+	</modules>
+</config>
