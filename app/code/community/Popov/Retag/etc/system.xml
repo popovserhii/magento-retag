@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<config>
+	<tabs>
+		<retargeting module="popov_retag" translate="label">
+			<label>Retargeting Tags</label>
+			<sort_order>1000</sort_order>
+		</retargeting>
+	</tabs>
+</config>

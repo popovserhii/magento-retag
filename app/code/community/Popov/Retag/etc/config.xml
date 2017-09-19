@@ -23,6 +23,25 @@
 			</popov_retag>
 		</models>
 
+        <frontend>
+            <routers>
+                <popov_retag>
+                    <use>standard</use>
+                    <args>
+                        <module>Popov_Retag</module>
+                        <frontName>retag</frontName>
+                    </args>
+                </popov_retag>
+            </routers>
+            <layout>
+                <updates>
+                    <popov_retag>
+                        <file>popov/retag.xml</file>
+                    </popov_retag>
+                </updates>
+            </layout>
+        </frontend>
+
 		<events>
 			<!-- this name is really important, use this to indicate the layout-render-before event -->
 			<controller_action_layout_render_before>
@@ -101,22 +120,9 @@
 		</events>
 	</global>
 
-	<frontend>
-		<routers>
-			<popov_retag>
-				<use>standard</use>
-				<args>
-					<module>Popov_Retag</module>
-					<frontName>retag</frontName>
-				</args>
-			</popov_retag>
-		</routers>
-		<layout>
-			<updates>
-				<popov_retag>
-					<file>popov/retag.xml</file>
-				</popov_retag>
-			</updates>
-		</layout>
-	</frontend>
+    <!--<retargeting>
+        <modules>
+            <Popov_Admitad/>
+        </modules>
+    </retargeting>-->
 </config>
