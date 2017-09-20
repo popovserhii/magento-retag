@@ -16,7 +16,7 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getRetargetingConfig()
     {
-        if ($this->retargetingConfig) {
+        if (!$this->retargetingConfig) {
             $this->retargetingConfig = Mage::getConfig()->getNode('retargeting')->asArray();
         }
 
@@ -40,18 +40,17 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
         return $cache[$name] = implode('_', $code);
     }
 
-    public function isModuleEnable($name)
+    public function isRetagEnabled($name)
     {
         return Mage::getStoreConfig($this->getModuleCode($name) . '/settings/enabled');
     }
 
     public function setCookies()
     {
-        /** @var Popov_Retag_Helper_Data $helper */
         $modulesConfig = $this->getRetargetingConfig()['modules'];
         foreach ($modulesConfig as $name => $config) {
-            $moduleCode = $this->getModuleCode($name);
-            if ($this->isModuleEnabled($name) && Mage::getStoreConfig($moduleCode . '/settings/postback_url')) {
+            if ($this->isRetagEnabled($name)) {
+                $moduleCode = $this->getModuleCode($name);
                 $helper = Mage::helper($moduleCode);
                 $helper->setCookies();
             }
@@ -64,7 +63,7 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
         foreach ($this->getRetargetingConfig()['modules'] as $name => $config) {
             if ($request->get($utmUidName = $config['utm_uid_name'])) {
                 foreach ($this->getRetargetingConfig()['modules'] as $_name => $_config) {
-                    if (($utmUidName !== $config['utm_uid_name']) && $this->isModuleEnabled($name)) {
+                    if (($utmUidName !== $_config['utm_uid_name'])/* && $this->isRetagEnabled($name)*/) {
                         $helper = Mage::helper($this->getModuleCode($_name));
                         $helper->clearCookies();
                     }
@@ -77,7 +76,7 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $modulesConfig = $this->getRetargetingConfig()['modules'];
         foreach ($modulesConfig as $name => $config) {
-            if (!$this->isModuleEnabled($name)) {
+            if (!$this->isRetagEnabled($name)) {
                 continue;
             }
             $moduleCode = $this->getModuleCode($name);
@@ -97,7 +96,10 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $modulesConfig = $this->getRetargetingConfig()['modules'];
         foreach ($modulesConfig as $name => $config) {
-            $noduleHelper = Mage::helper(strtolower($name) . '/postBack');
+            if (!$this->isRetagEnabled($name)) {
+                continue;
+            }
+            $noduleHelper = Mage::helper($this->getModuleCode($name) . '/postBack');
             $noduleHelper->send();
         }
     }
