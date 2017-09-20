@@ -14,36 +14,10 @@ class Popov_Retag_Model_Observer extends Varien_Event_Observer
 	 */
 	protected $helper;
 
-    /**
-     * @var array
-     */
-	protected $retargetingConfig;
-
-	public function getRetargetingConfig()
-    {
-        if ($this->retargetingConfig) {
-            $this->retargetingConfig = Mage::getConfig()->getNode('retargeting')->asArray();
-        }
-
-        return $this->retargetingConfig;
-
-    }
-
-	public function hookToSetScript()
+ 	public function hookToSetScript()
 	{
-        $modulesConfig = $this->getRetargetingConfig()['modules'];
-        foreach ($modulesConfig as $name => $config) {
-            $moduleCode = strtolower($name);
-
-            $blockCode = $moduleCode . '/script';
-            $blockName = str_replace('_', '.', $moduleCode) . '.retag.script';
-            $block = Mage::app()->getLayout()->createBlock(
-                $blockCode,
-                $blockName,
-                array('action' => Mage::app()->getFrontController()->getAction()->getFullActionName())
-            );
-            $beforeBodyEnd = Mage::app()->getLayout()->getBlock('before_body_end');
-            $beforeBodyEnd->append($block);
+        if (!Mage::app()->getStore()->isAdmin()) {
+            $this->getHelper()->setScript();
         }
 
         /*$block = Mage::app()->getLayout()->createBlock(
@@ -57,21 +31,16 @@ class Popov_Retag_Model_Observer extends Varien_Event_Observer
 
     public function hookToSendBackRequest()
 	{
-        /** @var $noduleHelper Popov_Retag_Helper_PostBack */
-        $modulesConfig = $this->getRetargetingConfig()['modules'];
-        foreach ($modulesConfig as $name => $config) {
-            $noduleHelper = Mage::helper(strtolower($name) . '/postBack');
-            $noduleHelper->send();
+        if (!Mage::app()->getStore()->isAdmin()) {
+            $this->getHelper()->send();
         }
     }
 
     public function hookToSetCookies()
     {
-        /** @var Popov_Retag_Helper_Data $helper */
-        $modulesConfig = $this->getRetargetingConfig()['modules'];
-        foreach ($modulesConfig as $name => $config) {
-            $helper = Mage::helper(strtolower($name));
-            $helper->setCookies();
+        if (!Mage::app()->getStore()->isAdmin()) {
+            $this->getHelper()->setCookies();
+            $this->getHelper()->clearCookies();
         }
     }
 
