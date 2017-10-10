@@ -45,6 +45,24 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::getStoreConfig($this->getModuleCode($name) . '/settings/enabled');
     }
 
+    public function getRetagName($name)
+    {
+        return explode('_', $name)[1];
+    }
+
+    public function isLastCookieWins($name)
+    {
+        $config = $this->getRetargetingConfig();
+        $cookie = Mage::getSingleton('core/cookie');
+        //if (!$cookie->get('AFF_ID')) {
+        $cookieName = strtoupper($this->getRetagName($name) . '_' . $config['modules'][$name]['utm_uid_name']);
+        if ($cookie->get($cookieName)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function setCookies()
     {
         $modulesConfig = $this->getRetargetingConfig()['modules'];
@@ -79,13 +97,18 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
             if (!$this->isRetagEnabled($name)) {
                 continue;
             }
+
             $moduleCode = $this->getModuleCode($name);
             $blockCode = $moduleCode . '/script';
+            if (!class_exists(Mage::getConfig()->getBlockClassName($blockCode))) {
+                continue;
+            }
+
             $blockName = str_replace('_', '.', $moduleCode) . '.retag.script';
             $block = Mage::app()->getLayout()->createBlock(
                 $blockCode,
                 $blockName,
-                array('action' => Mage::app()->getFrontController()->getAction()->getFullActionName())
+                ['action' => Mage::app()->getFrontController()->getAction()->getFullActionName()]
             );
             $beforeBodyEnd = Mage::app()->getLayout()->getBlock('before_body_end');
             $beforeBodyEnd->append($block);
@@ -96,11 +119,16 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $modulesConfig = $this->getRetargetingConfig()['modules'];
         foreach ($modulesConfig as $name => $config) {
-            if (!$this->isRetagEnabled($name)) {
+            if (!$this->isRetagEnabled($name) || !$this->isLastCookieWins($name)) {
                 continue;
             }
-            $noduleHelper = Mage::helper($this->getModuleCode($name) . '/postBack');
-            $noduleHelper->send();
+
+            /** @var Popov_Retag_Helper_PostBackInterface $postBackHelper */
+            $postBackHelper = Mage::helper($this->getModuleCode($name) . '/postBack');
+            /** @var Popov_Retag_Helper_Curl $curlHelper */
+            $curlHelper = Mage::helper('popov_retag/curl');
+
+            $curlHelper->send($postBackHelper->getUrl(), $postBackHelper->getParams());
         }
     }
 }

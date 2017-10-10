@@ -8,9 +8,23 @@
  * @author Popov Sergiy <popow.serhii@gmail.com>
  * @datetime: 07.06.2017 17:48
  */
-class Popov_Retag_Helper_PostBack extends Mage_Core_Helper_Abstract
+class Popov_Retag_Helper_Curl extends Mage_Core_Helper_Abstract
 {
-    public function send($url, $data)
+    public function send($url, $params)
+    {
+        $response = null;
+        if (isset($params[0])) {
+            foreach ($params as $post) {
+                $response[] = $this->send($url, $post);
+            }
+        } else {
+            $response = $this->curl($url, $params);
+        }
+
+        return $response;
+    }
+
+    public function curl($url, $data)
     {
         $ch = curl_init();
 

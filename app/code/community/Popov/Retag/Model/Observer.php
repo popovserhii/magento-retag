@@ -19,14 +19,6 @@ class Popov_Retag_Model_Observer extends Varien_Event_Observer
         if (!Mage::app()->getStore()->isAdmin()) {
             $this->getHelper()->setScript();
         }
-
-        /*$block = Mage::app()->getLayout()->createBlock(
-            'popov_retag/script',
-            'admitad.retag.script',
-            array('action' => Mage::app()->getFrontController()->getAction()->getFullActionName())
-        );
-        $beforeBodyEnd = Mage::app()->getLayout()->getBlock('before_body_end');
-        $beforeBodyEnd->append($block);*/
 	}
 
     public function hookToSendBackRequest()
