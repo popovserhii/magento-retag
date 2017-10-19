@@ -55,7 +55,13 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
         $config = $this->getRetargetingConfig();
         $cookie = Mage::getSingleton('core/cookie');
         //if (!$cookie->get('AFF_ID')) {
-        $cookieName = strtoupper($this->getRetagName($name) . '_' . $config['modules'][$name]['utm_uid_name']);
+
+        $retagName = strtoupper($this->getRetagName($name));
+        $cookieName = strtoupper($config['modules'][$name]['utm_uid_name']);
+        if (strpos($cookieName, $retagName) === false) {
+            $cookieName = $this->getRetagName($name) . '_' . $config['modules'][$name]['utm_uid_name'];
+        }
+
         if ($cookie->get($cookieName)) {
             return true;
         }
