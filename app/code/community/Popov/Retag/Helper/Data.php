@@ -59,7 +59,7 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
         $retagName = strtoupper($this->getRetagName($name));
         $cookieName = strtoupper($config['modules'][$name]['utm_uid_name']);
         if (strpos($cookieName, $retagName) === false) {
-            $cookieName = $this->getRetagName($name) . '_' . $config['modules'][$name]['utm_uid_name'];
+            $cookieName = strtoupper($this->getRetagName($name) . '_' . $config['modules'][$name]['utm_uid_name']);
         }
 
         if ($cookie->get($cookieName)) {
