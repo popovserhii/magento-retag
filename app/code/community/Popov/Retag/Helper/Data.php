@@ -106,7 +106,8 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
 
             $moduleCode = $this->getModuleCode($name);
             $blockCode = $moduleCode . '/script';
-            if (!class_exists(Mage::getConfig()->getBlockClassName($blockCode))) {
+            $blockClass = Mage::getConfig()->getBlockClassName($blockCode);
+            if (!class_exists($blockClass)) {
                 continue;
             }
 
