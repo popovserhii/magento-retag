@@ -26,7 +26,7 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getModuleCode($name)
     {
-        $cache = [];
+        static $cache = [];
         if (isset($cache[$name])) {
             return $cache[$name];
         }
@@ -54,10 +54,11 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $config = $this->getRetargetingConfig();
         $cookie = Mage::getSingleton('core/cookie');
-        //if (!$cookie->get('AFF_ID')) {
 
         $retagName = strtoupper($this->getRetagName($name));
-        $cookieName = strtoupper($config['modules'][$name]['utm_uid_name']);
+        $cookieName = isset($config['modules'][$name]['utm_uid_name'])
+            ? strtoupper($config['modules'][$name]['utm_uid_name'])
+            : null;
         if (strpos($cookieName, $retagName) === false) {
             $cookieName = strtoupper($this->getRetagName($name) . '_' . $config['modules'][$name]['utm_uid_name']);
         }
@@ -76,7 +77,9 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
             if ($this->isRetagEnabled($name)) {
                 $moduleCode = $this->getModuleCode($name);
                 $helper = Mage::helper($moduleCode);
-                $helper->setCookies();
+                if (method_exists($helper, 'setCookies')) {
+                    $helper->setCookies();
+                }
             }
         }
     }
@@ -85,7 +88,7 @@ class Popov_Retag_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $request = Mage::app()->getRequest();
         foreach ($this->getRetargetingConfig()['modules'] as $name => $config) {
-            if ($request->get($utmUidName = $config['utm_uid_name'])) {
+            if (isset( $config['utm_uid_name']) && $request->get($utmUidName = $config['utm_uid_name'])) {
                 foreach ($this->getRetargetingConfig()['modules'] as $_name => $_config) {
                     if (($utmUidName !== $_config['utm_uid_name'])/* && $this->isRetagEnabled($name)*/) {
                         $helper = Mage::helper($this->getModuleCode($_name));
